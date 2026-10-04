@@ -1,0 +1,10 @@
+{
+  "versionCode": 3,
+  "versionName": "2.3.1",
+  "apkUrl": "https://raw.githubusercontent.com/berdi8808/cudy-turkmenistan-updates/main/Cudy_Turkmenistan.apk",
+  "sha256": "506dbbbed5c4a4568f67ee966f99568cb55509dd33760f2485c83073bdc25269",
+  "releaseNotes": {
+    "ru": "Перенесён адрес проверки обновлений в облачное хранилище GitHub.",
+    "tk": "Täzelenmeleri barlamak üçin salgy GitHub buludyna geçirildi."
+  }
+}
