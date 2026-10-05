@@ -1,10 +1,10 @@
 {
-  "versionCode": 6,
-  "versionName": "2.4.2",
-  "apkUrl": "https://github.com/berdi8808/cudy-turkmenistan-updates/releases/download/v2.4.2/Cudy_Turkmenistan.apk",
-  "sha256": "082d5192a3a40da936051b9563d025589d382c4654f3f678c8cce65c977bcd42",
+  "versionCode": 7,
+  "versionName": "2.4.3",
+  "apkUrl": "https://github.com/berdi8808/cudy-turkmenistan-updates/releases/download/v2.4.3/Cudy_Turkmenistan.apk",
+  "sha256": "085c34a07a69073cdc43a5c6408ada32516b7265d6f86225be5e957ba5186697",
   "releaseNotes": {
-    "ru": "Категории раскрываются в меню. Выбор типа сразу показывает модели на главном экране с крупными фотографиями и удобным текстом.",
-    "tk": "Kategoriýalar menýuda açylýar. Önümiň görnüşini saýlanyňyzda modeller baş sahypada uly suratlar we düşnükli ýazgylar bilen görkezilýär."
+    "ru": "Увеличен шрифт категорий в меню. В карточках товара добавлена загрузка до четырёх официальных фотографий Cudy с разных сторон; если галерея модели недоступна, показывается фото из каталога.",
+    "tk": "Menýudaky kategoriýalaryň şrifti ulaldyldy. Haryt kartasyna Cudy-nyň resmi galereýasyndan dürli tarapdan dört surata çenli ýüklemek goşuldy; modeliň galereýasy elýeterli bolmasa, katalogdaky surat görkezilýär."
   }
 }
