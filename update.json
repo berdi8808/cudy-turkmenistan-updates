@@ -1,8 +1,8 @@
 {
   "versionCode": 4,
-  "versionName": "2.4.0",
-  "apkUrl": "https://raw.githubusercontent.com/berdi8808/cudy-turkmenistan-updates/243a4b74658eda3add30907c03ee3d3bc84b71f7/Cudy_Turkmenistan.apk",
-  "sha256": "7fe688da228379debc7207c40469ec2df83d6e2cf40de843a2baecf0adb84de2",
+  "versionName": "2.4.0 FIX-2",
+  "apkUrl": "https://raw.githubusercontent.com/berdi8808/cudy-turkmenistan-updates/ef1a4b3532391883982482bbc65a1ce46702a019/Cudy_Turkmenistan.apk",
+  "sha256": "6b65e84bdcc21fece72cf7786b9c2df6ac987f72cc880fe783daf66559e2a4a2",
   "releaseNotes": {
     "ru": "Каталог сгруппирован по типам товаров; категории раскрывают все модели и их характеристики. Обновлён главный экран, добавлен флаг Туркменистана.",
     "tk": "Haryt katalogy toparlar boýunça tertiplendi, kategoriýalarda modeller we aýratynlyklar görkezilýär. Baş sahypa täzelendi we Türkmenistanyň baýdagy goşuldy."
