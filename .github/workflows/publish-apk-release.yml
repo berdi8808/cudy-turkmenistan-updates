@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - update.json
-      - .github/workflows/publish-apk-release.yml
 
 permissions:
   contents: write
@@ -19,17 +18,37 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat release-assets/v2.4.2/part-*.bin > Cudy_Turkmenistan.apk
-          expected_sha="$(python3 -c 'import json; print(json.load(open("update.json"))["sha256"])')"
-          expected_size=6001179
-          actual_size="$(stat -c '%s' Cudy_Turkmenistan.apk)"
-          test "$actual_size" = "$expected_size"
-          echo "$expected_sha  Cudy_Turkmenistan.apk" | sha256sum --check -
+          mapfile -t release_info < <(python3 - <<'PY'
+          import json
+          manifest = json.load(open("update.json", encoding="utf-8"))
+          print(manifest["versionName"])
+          print(manifest["sha256"])
+          print(manifest.get("releaseNotes", {}).get("ru", ""))
+          print(manifest.get("releaseNotes", {}).get("tk", ""))
+          PY
+          )
+          version="${release_info[0]}"
+          tag="v${version}"
+          expected_sha="${release_info[1]}"
+          shopt -s nullglob
+          parts=(release-assets/"${tag}"/part-*.bin)
+          test "${#parts[@]}" -gt 0
+          cat "${parts[@]}" > Cudy_Turkmenistan.apk
+          echo "${expected_sha}  Cudy_Turkmenistan.apk" | sha256sum --check -
+
+          notes="RU: ${release_info[2]}
+
+          TK: ${release_info[3]}"
+          echo "VERSION=${version}" >> "$GITHUB_ENV"
+          echo "TAG=${tag}" >> "$GITHUB_ENV"
+          echo "NOTES<<RELEASE_NOTES" >> "$GITHUB_ENV"
+          printf '%s\n' "$notes" >> "$GITHUB_ENV"
+          echo "RELEASE_NOTES" >> "$GITHUB_ENV"
       - name: Create release and upload verified APK
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v2.4.2 Cudy_Turkmenistan.apk \
+          gh release create "$TAG" Cudy_Turkmenistan.apk \
             --target "$GITHUB_SHA" \
-            --title "Cudy Turkmenistan 2.4.2" \
-            --notes "Improved category navigation, larger product cards and photos. Full APK size and SHA-256 verified before release."
+            --title "Cudy Turkmenistan $VERSION" \
+            --notes "$NOTES"
