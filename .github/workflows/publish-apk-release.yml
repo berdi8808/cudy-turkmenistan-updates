@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - update.json
       - .github/workflows/publish-apk-release.yml
 
 permissions:
@@ -14,11 +15,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Create release and upload APK
+      - name: Reassemble and verify full APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat release-assets/v2.4.2/part-*.bin > Cudy_Turkmenistan.apk
+          expected_sha="$(python3 -c 'import json; print(json.load(open("update.json"))["sha256"])')"
+          expected_size=6001179
+          actual_size="$(stat -c '%s' Cudy_Turkmenistan.apk)"
+          test "$actual_size" = "$expected_size"
+          echo "$expected_sha  Cudy_Turkmenistan.apk" | sha256sum --check -
+      - name: Create release and upload verified APK
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v2.4.0-fix3 Cudy_Turkmenistan.apk \
+          gh release create v2.4.2 Cudy_Turkmenistan.apk \
             --target "$GITHUB_SHA" \
-            --title "Cudy Turkmenistan 2.4.0 FIX-3" \
-            --notes "Android update package signed with the production certificate using APK Signature Schemes V1, V2 and V3."
+            --title "Cudy Turkmenistan 2.4.2" \
+            --notes "Improved category navigation, larger product cards and photos. Full APK size and SHA-256 verified before release."
