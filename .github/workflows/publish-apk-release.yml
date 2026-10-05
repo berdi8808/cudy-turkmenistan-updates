@@ -1,0 +1,24 @@
+name: Publish Cudy APK release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-apk-release.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create release and upload APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v2.4.0-fix3 Cudy_Turkmenistan.apk \
+            --target "$GITHUB_SHA" \
+            --title "Cudy Turkmenistan 2.4.0 FIX-3" \
+            --notes "Android update package signed with the production certificate using APK Signature Schemes V1, V2 and V3."
