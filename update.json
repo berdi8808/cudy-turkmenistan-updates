@@ -1,10 +1,10 @@
 {
-  "versionCode": 7,
-  "versionName": "2.4.3",
-  "apkUrl": "https://github.com/berdi8808/cudy-turkmenistan-updates/releases/download/v2.4.3/Cudy_Turkmenistan.apk",
-  "sha256": "085c34a07a69073cdc43a5c6408ada32516b7265d6f86225be5e957ba5186697",
+  "versionCode": 8,
+  "versionName": "2.4.4",
+  "apkUrl": "https://github.com/berdi8808/cudy-turkmenistan-updates/releases/download/v2.4.4/Cudy_Turkmenistan.apk",
+  "sha256": "c1065eb55b90ae2efb6ae41e4bab508ecbf23d71bfe0b407f9cbb819f9702aba",
   "releaseNotes": {
-    "ru": "Увеличен шрифт категорий в меню. В карточках товара добавлена загрузка до четырёх официальных фотографий Cudy с разных сторон; если галерея модели недоступна, показывается фото из каталога.",
-    "tk": "Menýudaky kategoriýalaryň şrifti ulaldyldy. Haryt kartasyna Cudy-nyň resmi galereýasyndan dürli tarapdan dört surata çenli ýüklemek goşuldy; modeliň galereýasy elýeterli bolmasa, katalogdaky surat görkezilýär."
+    "ru": "Улучшена читаемость категорий и карточек. Для 261 из 275 моделей встроены офлайн-галереи Cudy с 3–4 официальными изображениями. Для 14 моделей на Cudy.com доступно меньше трёх подходящих снимков или точная страница отсутствует; оставлены только доступные точные фото из каталога.",
+    "tk": "Kategoriýalaryň we haryt kartlarynyň okalyşy gowulandyryldy. 275 modeliň 261-si üçin Cudy-nyň resmi 3–4 suratyndan oflaýn galereýalar goşuldy. Cudy.com-da 14 model üçin 3-den az laýyk surat bar ýa-da takyk model sahypasy ýok; diňe katalogda bar bolan takyk suratlar galdyryldy."
   }
 }
