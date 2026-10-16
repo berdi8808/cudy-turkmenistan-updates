@@ -1,0 +1,59 @@
+name: Cudy 2.4.8 consignment checks and APK
+on:
+  pull_request:
+    paths: ['cudy-248/**', '.github/workflows/cudy-248-build.yml']
+permissions:
+  contents: read
+jobs:
+  verify-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Unit and API checks
+        working-directory: cudy-248
+        run: |
+          node tests/consignment.test.js
+          node tests/auth.test.js
+          node tests/ui.test.js
+          for f in app/src/main/assets/*.js; do node --check "$f"; done
+      - name: Firestore role and data isolation tests
+        working-directory: cudy-248
+        run: |
+          npm install --no-save firebase-tools @firebase/rules-unit-testing firebase
+          npx firebase emulators:exec --project demo-cudy248 --only firestore "node tests/firestore.test.mjs"
+      - name: Restore verified offline catalogue assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat release-assets/v2.4.4/part-*.bin > /tmp/cudy-base.apk
+          echo 'c1065eb55b90ae2efb6ae41e4bab508ecbf23d71bfe0b407f9cbb819f9702aba  /tmp/cudy-base.apk' | sha256sum --check -
+          unzip -q /tmp/cudy-base.apk 'assets/*' -d /tmp/cudy-base-assets
+          cp -a /tmp/cudy-base-assets/assets/. cudy-248/app/src/main/assets/
+          cd cudy-248
+          patch -p0 < catalog-shell.patch
+          sha256sum --check catalog-shell.sha256
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+      - name: Build Android release
+        working-directory: cudy-248
+        run: |
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease
+          mkdir -p ci-output
+          cp app/build/outputs/apk/release/app-release-unsigned.apk ci-output/Cudy_Turkmenistan_2.4.8-unsigned.apk
+          cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" ci-output/apksigner.jar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cudy-248-build
+          path: cudy-248/ci-output/*
+          retention-days: 7
+
