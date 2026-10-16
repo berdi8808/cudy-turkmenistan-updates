@@ -40,6 +40,8 @@ jobs:
           cd cudy-248
           patch -p0 < catalog-shell.patch
           sha256sum --check catalog-shell.sha256
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
       - name: Build Android release
         working-directory: cudy-248
         run: |
@@ -54,3 +56,4 @@ jobs:
           name: cudy-248-build
           path: cudy-248/ci-output/*
           retention-days: 7
+
