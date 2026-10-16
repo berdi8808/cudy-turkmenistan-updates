@@ -58,7 +58,7 @@ service cloud.firestore {
     && validInt(d.rate_bps,0,500) && validInt(d.commission_minor,0,1000000000) && d.currency == get(/databases/$(database)/documents/consignment/settings).data.currency
     && text(d.reference,80) && text(d.note,160) && text(d.source_event,120) && text(d.created_at,35) && d.created_at.size() >= 20
     && validInt(d.returned_qty,0,d.quantity) && validInt(d.reversed_minor,0,d.commission_minor) && text(d.request_key,64) && d.request_key.size() == 64
-    && (d.kind != 'sale' || (d.reference.size() >= 1 && d.quantity > 0 && d.unit_price_minor > 0 && d.amount_minor == d.quantity*d.unit_price_minor && d.rate_bps >= 300 && d.commission_minor == int((d.amount_minor*d.rate_bps+5000)/10000)))
+    && (d.kind != 'sale' || (d.reference.size() >= 1 && d.quantity > 0 && d.unit_price_minor > 0 && d.amount_minor == d.quantity*d.unit_price_minor && d.rate_bps >= 300 && d.commission_minor == int((d.amount_minor * d.rate_bps + 5000) / 10000)))
     && (!(d.kind in ['transfer','dealer_return','receipt']) || (d.quantity > 0 && d.amount_minor == 0 && d.commission_minor == 0 && d.rate_bps == 0))
     && (d.kind != 'payment' || (d.quantity == 0 && d.amount_minor > 0 && d.commission_minor == 0 && d.rate_bps == 0));
   }
