@@ -1,0 +1,11 @@
+.gradle/
+build/
+app/build/
+node_modules/
+local.properties
+release-signing.properties
+*.jks
+*.keystore
+Cudy_Initial_Stock*.json
+*debug.log
+ci-output/

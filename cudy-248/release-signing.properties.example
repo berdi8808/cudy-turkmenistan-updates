@@ -1,0 +1,5 @@
+# Copy to release-signing.properties and keep it private.
+storeFile=cudy-turkmenistan-release.jks
+storePassword=PUT_YOUR_PRIVATE_STORE_PASSWORD_HERE
+keyAlias=cudy-release
+keyPassword=PUT_YOUR_PRIVATE_KEY_PASSWORD_HERE

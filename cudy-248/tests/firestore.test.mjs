@@ -1,0 +1,42 @@
+import fs from 'node:fs';
+import {initializeTestEnvironment,assertFails,assertSucceeds} from '@firebase/rules-unit-testing';
+import {doc,setDoc,getDoc,getDocs,collection,updateDoc,writeBatch} from 'firebase/firestore';
+const env=await initializeTestEnvironment({projectId:'demo-cudy248',firestore:{rules:fs.readFileSync('firestore.rules','utf8')}});
+const base={username:'owner@example.test',name:'Owner',role:'admin',rate_bps:0,active:true};
+const dealer={username:'d1@example.test',name:'Dealer',role:'dealer',rate_bps:400,active:true,code:'OP01'};
+const item={sku:'CUDY-001',model:'Fixture Router A',description:'Router',category:'Wi-Fi',price_known:true,price_minor:1250,opening_qty:40,qty:40,source_row:3,source_no:1};
+try{
+ await env.withSecurityRulesDisabled(async ctx=>{const db=ctx.firestore();await setDoc(doc(db,'profiles/owner'),base);await setDoc(doc(db,'profiles/d1'),dealer);await setDoc(doc(db,'profiles/d2'),{...dealer,username:'d2@example.test',code:'OP02'});await setDoc(doc(db,'profiles/off'),{...dealer,active:false});await setDoc(doc(db,'consignment/settings'),{currency:'USD',schema:1,source_name:'fixture',created_at:new Date().toISOString()});await setDoc(doc(db,'consignmentItems/CUDY-001'),item);await setDoc(doc(db,'consignmentAccounts/d1'),{sales_minor:0,earned_minor:0,paid_minor:0});await setDoc(doc(db,'consignmentAccounts/d1/stock/CUDY-001'),{sku:item.sku,model:item.model,qty:10});});
+ const owner=env.authenticatedContext('owner').firestore(),d1=env.authenticatedContext('d1').firestore(),d2=env.authenticatedContext('d2').firestore(),off=env.authenticatedContext('off').firestore(),anon=env.unauthenticatedContext().firestore();
+ await assertSucceeds(getDoc(doc(d1,'consignmentItems/CUDY-001')));
+ await assertSucceeds(getDoc(doc(d1,'consignmentAccounts/d1/stock/CUDY-001')));
+ await assertFails(getDoc(doc(d2,'consignmentAccounts/d1/stock/CUDY-001')));
+ await assertFails(getDocs(collection(d1,'profiles')));
+ await assertFails(getDocs(collection(d1,'consignmentAccounts')));
+ await assertFails(getDoc(doc(off,'consignmentItems/CUDY-001')));
+ await assertFails(getDoc(doc(anon,'consignmentItems/CUDY-001')));
+ await assertFails(updateDoc(doc(d1,'profiles/d1'),{rate_bps:500,role:'admin'}));
+ await assertFails(updateDoc(doc(d1,'consignmentItems/CUDY-001'),{price_minor:1}));
+ await assertFails(updateDoc(doc(d1,'consignmentAccounts/d1'),{earned_minor:100000}));
+ await assertFails(updateDoc(doc(d1,'consignmentAccounts/d1/stock/CUDY-001'),{qty:500}));
+ await assertFails(setDoc(doc(d1,'consignmentAccounts/d1/payments/fake'),{amount_minor:100}));
+ await assertSucceeds(updateDoc(doc(owner,'profiles/d1'),{rate_bps:300}));
+ await assertFails(updateDoc(doc(owner,'profiles/d1'),{rate_bps:299}));
+ await assertFails(updateDoc(doc(owner,'profiles/d1'),{rate_bps:501}));
+ await assertFails(updateDoc(doc(owner,'consignment/settings'),{currency:'TMT'}));
+ const report={sku:item.sku,model:item.model,quantity:2,unit_price_minor:1250,reference:'R001',status:'pending',event_id:'',created_at:new Date().toISOString(),request_key:'a'.repeat(64)};
+ await assertSucceeds(setDoc(doc(d1,'consignmentAccounts/d1/reports/r1'),report));
+ await assertFails(setDoc(doc(d1,'consignmentAccounts/d2/reports/r1'),report));
+ await assertFails(updateDoc(doc(d1,'consignmentAccounts/d1/reports/r1'),{status:'approved',event_id:'fake'}));
+ await assertFails(updateDoc(doc(owner,'consignmentAccounts/d1/reports/r1'),{status:'approved',event_id:'fake'}));
+ const sale={kind:'sale',sku:item.sku,model:item.model,quantity:2,unit_price_minor:1250,amount_minor:2500,rate_bps:300,commission_minor:75,currency:'USD',reference:'R001',note:'',source_event:'',created_at:new Date().toISOString(),returned_qty:0,reversed_minor:0,request_key:'b'.repeat(64)};
+ await assertFails(setDoc(doc(d1,'consignmentAccounts/d1/events/fake'),sale));
+ const batch=writeBatch(owner);batch.set(doc(owner,'consignmentAccounts/d1/events/s1'),sale);batch.update(doc(owner,'consignmentAccounts/d1/reports/r1'),{status:'approved',event_id:'s1'});batch.set(doc(owner,'consignmentAccounts/d1'),{sales_minor:2500,earned_minor:75,paid_minor:0});batch.set(doc(owner,'consignmentAccounts/d1/stock/CUDY-001'),{sku:item.sku,model:item.model,qty:8});await assertSucceeds(batch.commit());
+ await assertSucceeds(getDoc(doc(d1,'consignmentAccounts/d1/events/s1')));await assertFails(getDoc(doc(d2,'consignmentAccounts/d1/events/s1')));
+ await assertFails(updateDoc(doc(owner,'consignmentAccounts/d1/events/s1'),{amount_minor:1}));
+ await assertSucceeds(updateDoc(doc(owner,'profiles/d1'),{rate_bps:500}));
+ // A return tracker is immutable except for returned quantity and reversed bonus; changing today's rate must not break history.
+ await assertSucceeds(updateDoc(doc(owner,'consignmentAccounts/d1/events/s1'),{returned_qty:1,reversed_minor:38}));
+ await assertSucceeds(updateDoc(doc(owner,'profiles/d1'),{active:false}));await assertFails(getDoc(doc(d1,'consignmentAccounts/d1')));
+ console.log('Firestore: owner/dealer/other/anonymous/inactive roles, rates 3–5%, immutable history, atomic report approval and private account isolation: OK');
+}finally{await env.cleanup()}
